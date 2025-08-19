@@ -1013,7 +1013,7 @@ class Adventure(
                 "but **a{attr} {chall}** "
                 "just landed in front of you glaring! \n\n"
                 "What will you do and will other heroes be brave enough to help you?\n"
-                "Heroes have 5 minutes to participate."
+                "Heroes have 10 seconds to participate."
             ).format(
                 attr=session.attribute,
                 chall=session.challenge,
@@ -1021,7 +1021,7 @@ class Adventure(
             basilisk_text = _(
                 "but **a{attr} {chall}** stepped out looking around. \n\n"
                 "What will you do and will other heroes help your cause?\n"
-                "Heroes have 3 minutes to participate."
+                "Heroes have 10 seconds to participate."
             ).format(
                 attr=session.attribute,
                 chall=session.challenge,
@@ -1030,7 +1030,7 @@ class Adventure(
                 "but **a{attr} {chall}** "
                 "is guarding it with{threat}. \n\n"
                 "What will you do and will other heroes help your cause?\n"
-                "Heroes have 2 minutes to participate."
+                "Heroes have 10 seconds to participate."
             ).format(
                 attr=session.attribute,
                 chall=session.challenge,
@@ -1045,7 +1045,7 @@ class Adventure(
                     adventure_msg = await ctx.send(embed=embed, view=session)
                 else:
                     adventure_msg = await ctx.send(f"{adventure_msg}\n{dragon_text}", view=session)
-                timeout = 60 * 5
+                timeout = 10
 
             elif session.miniboss:
                 if use_embeds:
@@ -1056,7 +1056,7 @@ class Adventure(
                     adventure_msg = await ctx.send(embed=embed, view=session)
                 else:
                     adventure_msg = await ctx.send(f"{adventure_msg}\n{basilisk_text}", view=session)
-                timeout = 60 * 3
+                timeout = 10
             else:
                 if use_embeds:
                     embed.description = f"{adventure_msg}\n{normal_text}"
@@ -1065,13 +1065,13 @@ class Adventure(
                     adventure_msg = await ctx.send(embed=embed, view=session)
                 else:
                     adventure_msg = await ctx.send(f"{adventure_msg}\n{normal_text}", view=session)
-                timeout = 60 * 2
+                timeout = 10
         else:
-            timeout = 60 * 3
+            timeout = 10
             obscured_text = _(
-                "What will you do and will other heroes help your cause?\nHeroes have {time} minutes to participate."
+                "What will you do and will other heroes help your cause?\nHeroes have {time} seconds to participate."
             ).format(
-                time=timeout // 60,
+                time=timeout,
             )
             if use_embeds:
                 embed.description = f"{adventure_msg}\n{obscured_text}"
