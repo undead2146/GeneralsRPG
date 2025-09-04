@@ -56,121 +56,145 @@ Preferred stat: INT
 Use the `[p]music` command when being diplomatic in an adventure.  
 * Buffs other Charisma-using players when attacking.  
 Preferred stat: CHA  
-Rebirth levels can buff the base value of the bard's attack.  
-  
-**Psychics** can show the enemy's weaknesses to their group allowing them to target the monster's weak-points.  
-Use the `[p]insight` command in an adventure.  
-* A successful insight into an enemy's weak points during an adventure can turn the tide on difficult encounters.  
-Preferred stat: INT  
+# Generals: Zero Hour — Adventure (converted)
+
+This repository contains the Adventure cog converted and re-themed for "Generals: Zero Hour". The core play loop and many Adventure commands were retained, but several command aliases and reward flows are overhauled to support a Generals-themed economy (Supplies, Command Points, blueprints, and collectors).
+
+Compatibility: the conversion targets the Red 3.5 command runtime. If you need legacy Adventure behavior, check older branches or the upstream project.
 
 
-## Basic Commands for Players
+## Quick primer
 
-`[p]adventure` or `[p]a`
-* Start an adventure
+In this README `[p]` stands for your bot prefix. Many existing Adventure commands are still available (`[p]adventure`, `[p]loot`, `[p]backpack`), but new Generals-focused aliases are provided as thin wrappers that map into the Adventure engine.
 
-`[p]stats`
-* See your stats, or the stats of another user.
+Primary aliases you will use:
 
-`[p]backpack`
-* Check the backpack. Use `[p]ebackpack` to only show items that you can equip at that time. Use `[p]cbackpack` for complex argparse-based backpack management - see `[p]help cbackpack` to see how to use this command.
-* Use `[p]help backpack` to see a list of useful backpack management subcommands, including player item trading.
+- `[p]skirmish` — short patrol (quick adventure)
+- `[p]operation` — longer, higher-reward adventure
+# Generals: Zero Hour — GeneralsRPG
 
-`[p]equip` / `[p]unequip`
-* Equip/Unequip items by using the item name with the command
+GeneralsRPG is a Generals-themed conversion of the original Adventure cog. It adapts the idle-RPG loop to a Zero Hour style economy and command set while reusing the Adventure engine for combat and persistence.
 
-`[p]negaverse` or `[p]nv`
-* Try your luck in combat vs. a shadowy apparition from the void for a chance at XP... or a chance of your items and gold being taken from you instead.
+This README explains the high-level design, primary commands, economy, factions, admin and developer notes, and where to find design documents and tests in the repository.
 
-`[p]loot`
-* Shows the count of your precious loot chests. From there, multiple chests of the same type can be opened at once, e.g. `[p]loot epic 5` will loot 5 epic chests at once and display the contents. Opening loot chests one by one will display a comparison to what the hero has equipped at that point in time.
-
-`[p]convert`
-* Available after Rebirth level 2
-* Convert 25 loot chests to the next highest rarity. Only available up to Legendary.
-
-`[p]rebirth`
-* Players progress through a rebirth prestige leveling system alongside regular player levels. For every rebirth, the level cap is increased. Players will need to watch their level cap on the `[p]stats` output and rebirth when needed - hitting level cap during an adventure will also alert the player at the end during the loot recap.
-* On a rebirth, a server admin or bot-owner settable percentage of gold is taken from the player (default at 90%).
-* Legendary and Ascended items have a quality called Durability/Degrade Level (DEG) that is reduced by 1 every time a rebirth occurs. When this number hits 0, they are destroyed on rebirth.
-* Set items never degrade.
-* Normal, rare, and epic items are destroyed by the chaotic powers of rebirth.
-* In return, rebirthing gives higher base stats and a higher max level, an adventure dice increase at rebirth 15 and 30, and the ability to have a clearer picture of incoming monsters during Hard Mode adventures.
-
-`[p]skill`
-* When players level, they acquire skill points that they can use in improving one of the main stats (ATK, CHA, INT). These numbers are reset on a rebirth, but as players level in the rebirth level system, they will keep an increasingly larger amount of the base when they rebirth again.
+Compatibility
+- Targets the Red 3.5 command runtime. Local tests may need the repository root on `PYTHONPATH` so local `redbot` stubs resolve.
 
 
-## More Advanced Commands for Players
+## Quick start (players)
 
-`[p]backpack disassemble`
-* Take apart an unused piece of gear to try to get something good out of it. This complex command also uses the same argparse-style command structure that `[p]cbackpack` does - I recommend reading https://github.com/aikaterna/gobcog/blob/master/docs/cbackpack.md for more information.
+In this README `[p]` denotes your bot prefix. Use `[p]help <command>` for command-specific help.
+
+Primary player commands (aliases mapped to Adventure handlers):
+
+- `[p]skirmish` — short patrol (fast cooldown, Supplies + XP)
+- `[p]operation` — long operation (higher rewards, chance for Command Points and blueprints)
+- `[p]drill` — training / skill (short cooldown)
+- `[p]gather` — collect Supplies and materials
+- `[p]salvage` — salvage wrecks for parts and scrap
+- `[p]blackmarket` — risky, high-reward action (chance to lose items)
+- `[p]stronghold` / `[p]general` — long-instance / miniboss (shared long cooldown)
+- `[p]blueprints` — list available blueprints in your backpack
+- `[p]build <name>` — craft using blueprints, parts and supplies
+- `[p]backpack` / `[p]equip` / `[p]unequip` — inventory management
+- `[p]loot` — open loot chests
+
+Notes:
+- Existing Adventure commands like `[p]adventure` and `[p]a` remain available and are integrated where appropriate.
 
 
-## Monsters, Adventures, and the Numbers
+## Factions, units & flavor
 
-When an adventure is over, an output of the outcome is displayed. Sometimes the numbers won't seem to match up - why did that owlspider resist your 1,000 magic damage that you threw at it - and the output says 680 damage instead? Each monster has a resistance table where they could be resistant to magic like in this example, and it mitigated a good chunk of the attack. Having a balanced group across all classes is where adventure really shines - physical and magical damage is combined in adventures, and charisma stands alone in its persuading power to turn the fight around without fighting. Successful prayers by clerics over large groups augment damage of both damage types. If a group defeats an adventure on "both sides" of the damage (both physical+magical and diplomacy) the rewards are greater for the whole group.
+The conversion introduces Zero Hour flavor: factions, builders/collectors, power mechanics, and super-weapon concepts are represented through theme data and rewards. See `.vscode/PRD-GeneralsRPG.md` and `docs/GENERALS_COMMANDS.md` for the full design.
 
 
-## Items
+## Economy & rewards
 
-Items can be looted from loot chests received from a successful adventure or bought from a Trader Cart that appears in chat. 
+- Supplies — primary resource for crafting and building.
+- Command Points (CP) — rare currency from operations/strongholds for high-tier unlocks.
+- Parts / Materials — consumed when crafting/upgrading.
+- Blueprints — items used by `[p]build` to craft unique gear or units.
 
-Going from least to most powerful, generally the progression is normal < rare < epic < Legendary < Ascended < Set.
-Forged items are a Tinker's specialty.
-Event items can be created by a bot owner as a special reward to hand out to specific users for bot events or other incentive-based rewards.
+Reward distribution is handled by `adventure/loot.py` and uses per-theme JSON files in `adventure/data/zero_hour/` when the `zero_hour` theme is active.
 
-```ansi
-{Event:''Event items look like this''}
-{.:'Forged items look like this':.}
-{Set:''Set items look like this''}
-{Ascended:''Ascended items look like this''}
-{Legendary:'Legendary items look like this'}
-[epic items look like this]
-.rare_items_look_like_this
-normal items look like this
+
+## Admin / owner
+
+- Change theme: `adventureset theme zero_hour`.
+- Theme files: `adventure/data/zero_hour/` (monsters, rewards, recipes, gather tables, etc.).
+- Tweak cooldowns and economy keys via `adventureset` configuration (look for `economy.*` and `cooldowns.*` in the code).
+
+
+## Developer & testing notes
+
+Required test policy: add pytest tests for any new feature or behaviour change (see `.github/instructions` and `.vscode/checklist.md`). Tests should be deterministic and placed under `tests/`.
+
+Run tests locally (PowerShell):
+
+```powershell
+$env:PYTHONPATH = "${PWD}" ; pytest -q --maxfail=1
 ```
 
-`[p]setinfo` displays information about gear sets and their bonuses.
+Run a focused unit test that avoids full Red imports:
 
-Set items have a stacking set bonus. For example, if one set has 9 pieces, and `[p]setinfo` shows that it has a bonus at 3 pieces equipped, 6 pieces equipped, and 9 pieces equipped, all three of those bonuses will be applied if the player has all 9 pieces equipped.
+```powershell
+python -m pytest tests/unit/test_do_work_rewardengine.py -q
+```
+
+Quick syntax check for modified Python files:
+
+```powershell
+python -m py_compile adventure/adventure.py adventure/loot.py adventure/backpack.py
+```
+
+If pytest fails during collection with `ModuleNotFoundError: redbot`, ensure the repo is on `PYTHONPATH` (above) or run targeted tests that mock out Red objects.
 
 
-## Advanced Adventure for Admins/Bot Owners
+## Where to find more docs
 
-Read `[p]adventureset` and familiarize yourself with the subcommands available in that command. A few of the commands are highlighted below as they offer options that affect the whole game and also the bot itself.
+- Command & alias mapping: `docs/Commands.md` and `docs/GENERALS_COMMANDS.md`.
+- Product requirements & design: `.vscode/PRD-GeneralsRPG.md`.
+- Conversion checklist & CI notes: `.vscode/checklist.md`.
 
-The bot owner can spawn specific adventure monsters that are in the theme list by using `[p]adventure` with the name of the monster.
 
-### Easy Mode vs Hard Mode
-`[p]adventureset easymode`
+## Contributing
 
-* Users gain more XP per adventure if Hard Mode is used
-* Hard Mode randomly obscures details about the monster the group is fighting
-* The Psychic prestige heroclass is intended to be leveraged against Hard Mode by revealing critical details about how to defeat the monster
+- Keep wrappers thin: delegate to Adventure handlers where possible.
+- Add theme JSONs under `adventure/data/zero_hour/` and tests under `tests/`.
+- Update `.vscode/agent_rules.md` and run `py_compile` for modified Python files when opening a PR (see `.github/instructions/instruction.instructions.md`).
 
-### Daily bonuses
-`[p]adventureset dailybonus`
 
-Certain days of the week receive certain bonuses for XP and gold which is configurable.
+## Short summary
 
-### Adventure Gold vs. Red Economy credits
-`[p]adventureset sepcurrency`
+This repository contains a Generals-themed conversion of the Adventure cog. The README, docs, and theme JSONs should be your first reference when editing or extending the Generals features. Run tests locally with `PYTHONPATH` set and follow the repository checklist before opening PRs.
 
-Adventure gold is the default currency of adventure, which is separate from Red credits. This gold currency can provide an opportunity for users to have fun collecting it aside from Red credits in other games or cogs. Cogs can be written to leverage adventure gold, so there are infinite possibilities on how to best use this extra currency for your bot. If you want a unified currency, or if you aren't interested in another currency for your users, it can be toggled off.
+## Examples
 
-Adventure is a global (bot-wide) game in the idea that users use the same character across all servers the bot can see, but there are some things that provide different outcomes based on whether the bot is set to a global or server-based economy. For example with rebirth cost, if the Red bank/economy is in server-based mode, each server will be able to set their rebirth cost while if it is in global mode, only the bot owner will be able to use the command. In server-based mode, authorized users have either a bot Admin role (check `[p]set showsettings` to display Admin roles on Red), or they have the Manage Guild permission.
+Quick command examples (these are illustrative — exact wording depends on your bot prefix and localization):
 
-### Make Your Own Adventure Theme
-`[p]adventureset theme`
+- Start a short patrol and show result summary:
 
-Copy the default folder in `<datapath>/cogs/CogManager/adventure/data/` to the cog's data directory in `<datapath>/cogs/Adventure/` and name it a one word folder name. Make your changes to the files while making sure to validate them with a site like <https://jsonformatter.curiousconcept.com/>. Load your new theme with `[p]adventureset theme <folder_name>`.
+	[p]skirmish
 
-### The Trader Cart System
-`[p]adventureset cart <#channel>`
+	-> "Patrol complete: +120 Supplies, +50 XP. Loot: 1x Scrap Part."
 
-Sometimes a traveling merchant cart will roll past offering new items for adventurers to buy or loot chests to purchase. Admins/Bot owners must set this cart channel first before carts will appear. Carts have roughly a 3h return time, but this is also configurable.
+- Run a long operation that can award Command Points and blueprints:
 
-### Adventure Alerts
+	[p]operation
 
-If you want your users to be able to sign up for pings when specific monster types/potential boss monsters appear, install `adventurealert` by TrustyJAID (https://github.com/TrustyJAID/Trusty-cogs).
+	-> "Operation successful: +600 Supplies, +2 CP. Found blueprint: 'Tank Frame Fragment'."
+
+- Gather resources:
+
+	[p]gather
+
+	-> "+40 Supplies, +1 Material"
+
+- Craft from a blueprint (consumes blueprint, parts and supplies):
+
+	[p]build tank
+
+	-> "Built: Light Tank (consumed: 5x Parts, 200 Supplies, 1x Tank Blueprint)"
+
+These examples are simplified. Actual results include more detailed battle or loot summaries and may show item comparators, equip suggestions, or join/participation info when run in a shared channel.
+

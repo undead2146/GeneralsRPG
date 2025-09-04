@@ -1,0 +1,4 @@
+{
+  "tank": { "parts": 5, "supplies": 100, "product": "Tank" },
+  "jeep": { "parts": 3, "supplies": 40, "product": "Jeep" }
+}

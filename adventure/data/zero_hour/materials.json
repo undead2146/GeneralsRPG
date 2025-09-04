@@ -1,0 +1,6 @@
+{
+  "normal": { "att": 1, "cha": 0, "int": 0, "dex": 0, "luck": 0 },
+  "rare": { "att": 3, "cha": 0, "int": 0, "dex": 1, "luck": 0 },
+  "epic": { "att": 6, "cha": 0, "int": 2, "dex": 1, "luck": 1 },
+  "ascended": { "att": 0, "cha": 0, "int": 5, "dex": 0, "luck": 1 }
+}

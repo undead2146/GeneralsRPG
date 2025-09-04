@@ -1,0 +1,7 @@
+{
+  "skirmish": { "supplies": [100, 200], "parts": [1, 3] },
+  "operation": { "supplies": [500, 1000], "cp": [1, 2], "blueprints": 0.1 },
+  "gather": { "supplies": [50, 100], "parts": [1, 2] },
+  "salvage": { "parts": [2, 5] },
+  "blackmarket": { "supplies": [200, 400], "blueprints": 0.2 }
+}

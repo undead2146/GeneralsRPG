@@ -1,0 +1,8 @@
+{
+  "collectors": [
+    { "id": "chinook", "faction": "usa", "rate_per_hour": 700, "power_required": 100, "description": "Heavy lift collector for USA" },
+    { "id": "supply_truck", "faction": "china", "rate_per_hour": 600, "power_required": 100, "description": "Standard supply truck for China" },
+    { "id": "worker", "faction": "gla", "rate_per_hour": 350, "power_required": 0, "description": "GLA worker collector" },
+    { "id": "black_market_passive", "faction": "gla", "rate_per_hour": 250, "power_required": 0, "description": "Black Market passive income" }
+  ]
+}

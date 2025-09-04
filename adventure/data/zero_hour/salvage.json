@@ -1,0 +1,6 @@
+{
+  "drops": [
+    {"name": "vehicle_part", "chance": 60, "amount": [1, 2]},
+    {"name": "rare_engine", "chance": 5, "amount": [1, 1]}
+  ]
+}

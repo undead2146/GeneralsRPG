@@ -1,0 +1,10 @@
+{
+  "power_grid": {
+    "states": {
+      "normal": { "ratio_max": 1.0, "build_penalty": 0, "aura_penalty": 0 },
+      "low": { "ratio_max": 1.5, "build_penalty": -20, "aura_penalty": -10 },
+      "blackout": { "ratio_max": 9999, "build_penalty": -50, "aura_penalty": -100 }
+    },
+    "default_capacity": 200
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "Red Guard": { "slot": ["left"], "att": 3, "int": 0, "cha": 0, "dex": 1, "luck": 0, "rarity": "normal" },
+  "Tank Hunter": { "slot": ["right"], "att": 4, "int": 0, "cha": 0, "dex": 1, "luck": 0, "rarity": "normal" },
+  "Rebel": { "slot": ["left"], "att": 3, "int": 0, "cha": 1, "dex": 1, "luck": 0, "rarity": "normal" },
+  "Ranger": { "slot": ["right"], "att": 4, "int": 0, "cha": 1, "dex": 1, "luck": 0, "rarity": "normal" },
+  "Humvee": { "slot": ["left"], "att": 5, "int": 0, "cha": 0, "dex": 2, "luck": 1, "rarity": "normal" },
+  "Technical": { "slot": ["right"], "att": 5, "int": 0, "cha": 1, "dex": 2, "luck": 0, "rarity": "normal" },
+
+  "Dragon Tank": { "slot": ["left"], "att": 10, "int": 0, "cha": 0, "dex": 1, "luck": 0, "rarity": "rare" },
+  "Gattling Tank": { "slot": ["right"], "att": 9, "int": 0, "cha": 0, "dex": 2, "luck": 0, "rarity": "rare" },
+  "Quad Cannon": { "slot": ["left"], "att": 9, "int": 0, "cha": 0, "dex": 2, "luck": 0, "rarity": "rare" },
+  "Marauder Tank": { "slot": ["right"], "att": 11, "int": 0, "cha": 0, "dex": 1, "luck": 0, "rarity": "rare" },
+  "Ambulance": { "slot": ["gloves"], "att": 0, "int": 0, "cha": 2, "dex": 0, "luck": 2, "rarity": "rare" },
+  "TOW Humvee": { "slot": ["left"], "att": 12, "int": 0, "cha": 0, "dex": 2, "luck": 1, "rarity": "rare" },
+
+  "Overlord Tank": { "slot": ["two handed"], "att": 20, "int": 0, "cha": 0, "dex": 2, "luck": 1, "rarity": "epic" },
+  "ECM Tank": { "slot": ["ring"], "att": 0, "int": 8, "cha": 0, "dex": 0, "luck": 3, "rarity": "epic" },
+  "Aurora Bomber": { "slot": ["left"], "att": 18, "int": 8, "cha": 0, "dex": 3, "luck": 2, "rarity": "epic" },
+  "Scud Launcher": { "slot": ["right"], "att": 17, "int": 7, "cha": 0, "dex": 2, "luck": 2, "rarity": "epic" },
+  "Paladin Tank": { "slot": ["left"], "att": 16, "int": 4, "cha": 0, "dex": 2, "luck": 2, "rarity": "epic" },
+  "MiG Squadron": { "slot": ["right"], "att": 16, "int": 6, "cha": 0, "dex": 2, "luck": 2, "rarity": "epic" },
+
+  "Aurora Alpha": { "slot": ["left"], "att": 25, "int": 12, "cha": 0, "dex": 4, "luck": 3, "rarity": "legendary" },
+  "Nuke Cannon": { "slot": ["right"], "att": 28, "int": 12, "cha": 0, "dex": 1, "luck": 3, "rarity": "legendary" },
+  "Emperor Overlord": { "slot": ["two handed"], "att": 30, "int": 5, "cha": 0, "dex": 3, "luck": 3, "rarity": "legendary" },
+  "Burton": { "slot": ["neck"], "att": 12, "int": 4, "cha": 0, "dex": 4, "luck": 4, "rarity": "legendary" },
+  "Jarmen Kell": { "slot": ["ring"], "att": 10, "int": 6, "cha": 2, "dex": 3, "luck": 4, "rarity": "legendary" },
+  "Black Lotus": { "slot": ["charm"], "att": 0, "int": 16, "cha": 6, "dex": 0, "luck": 4, "rarity": "legendary" },
+
+  "Particle Cannon": { "slot": ["charm"], "att": 0, "int": 40, "cha": 0, "dex": 0, "luck": 5, "rarity": "ascended" },
+  "Nuclear Silo": { "slot": ["charm"], "att": 8, "int": 36, "cha": 0, "dex": 0, "luck": 5, "rarity": "ascended" },
+  "Scud Storm": { "slot": ["charm"], "att": 16, "int": 28, "cha": 0, "dex": 0, "luck": 5, "rarity": "ascended" },
+  "Stealth Network": { "slot": ["belt"], "att": 0, "int": 24, "cha": 8, "dex": 4, "luck": 4, "rarity": "ascended" },
+  "Satellite Uplink": { "slot": ["head"], "att": 0, "int": 26, "cha": 6, "dex": 2, "luck": 4, "rarity": "ascended" },
+
+  "Propaganda Tower": { "slot": ["neck"], "att": 0, "int": 10, "cha": 8, "dex": 0, "luck": 2, "rarity": "rare" },
+  "Camouflage Netting": { "slot": ["gloves"], "att": 0, "int": 8, "cha": 6, "dex": 2, "luck": 2, "rarity": "rare" },
+  "Composite Armor": { "slot": ["chest"], "att": 6, "int": 0, "cha": 0, "dex": 2, "luck": 2, "rarity": "rare" },
+  "Reactive Armor": { "slot": ["legs"], "att": 4, "int": 0, "cha": 0, "dex": 4, "luck": 2, "rarity": "epic" },
+  "Chem Suits": { "slot": ["boots"], "att": 0, "int": 0, "cha": 6, "dex": 2, "luck": 3, "rarity": "epic" },
+  "Advanced Training": { "slot": ["ring"], "att": 0, "int": 10, "cha": 4, "dex": 0, "luck": 2, "rarity": "epic" }
+}

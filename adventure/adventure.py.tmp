@@ -1,0 +1,15 @@
+"""Top-level Adventure shim.
+
+Prefer the refactored core implementation when available, else fall back to
+the legacy placeholder kept in `adventure.legacy_adventure`.
+"""
+from __future__ import annotations
+
+try:
+    # Preferred: refactored core Adventure
+    from .core.adventure import Adventure  # type: ignore
+    __all__ = ["Adventure"]
+except Exception:
+    # Fallback: legacy placeholder implementation
+    from .legacy_adventure import Adventure  # type: ignore
+    __all__ = ["Adventure"]
