@@ -1,0 +1,7 @@
+{
+  "of the USAF": { "att": 0, "cha": 0, "int": 2, "dex": 0, "luck": 0, "the": true },
+  "of the Red Army": { "att": 2, "cha": 0, "int": 0, "dex": 0, "luck": 0, "the": true },
+  "of the GLA": { "att": 1, "cha": 1, "int": 0, "dex": 0, "luck": 0, "the": true },
+  "of Shock Tactics": { "att": 1, "cha": 0, "int": 1, "dex": 0, "luck": 0 },
+  "of Covert Ops": { "att": 0, "cha": 1, "int": 1, "dex": 0, "luck": 0 }
+}

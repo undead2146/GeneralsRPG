@@ -1,367 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import annotations
 
-import logging
-import random
-import time
-from copy import copy
-from datetime import date, datetime
-from typing import Any, Dict, List, MutableMapping, Optional, Set, Tuple, Union
+"""Compatibility shim: core character and charsheet moved to package `adventure.core`.
 
-import discord
-from beautifultable import ALIGN_CENTER, BeautifulTable
-from discord.ext.commands import check
-from redbot.core import Config, commands
-from redbot.core.i18n import Translator
-from redbot.core.utils import AsyncIter
-from redbot.core.utils.chat_formatting import box, escape, humanize_list, humanize_number, pagify
+This module preserves the legacy import path `adventure.charsheet` by re-exporting
+the public symbols from `adventure.core.character`.
+"""
 
-from .bank import bank
-from .constants import DEV_LIST, REBIRTH_LVL, REBIRTH_STEP, ANSITextColours, HeroClasses, Rarities, Slot, Treasure
-
-log = logging.getLogger("red.cogs.adventure")
-
-_ = Translator("Adventure", __file__)
-
-COLUMN_WIDTHS = [5, 5, 5, 5, 6]
-
-
-class BackpackTable:
-    def __init__(self, table: str, items: List[Item]):
-        self.table = table
-        self.items = items
-
-    def __str__(self):
-        return self.table
-
-
-class Item:
-    """An object to represent an item in the game world."""
-
-    def __init__(self, **kwargs):
-        self._ctx: commands.Context = kwargs.pop("ctx")
-        if kwargs.get("rarity") in ["event"]:
-            self.name: str = kwargs.get("name", "Default Name")
-        elif kwargs.get("rarity") in ["set", "legendary", "ascended"]:
-            self.name: str = kwargs.get("name", "Default Name").title()
-        else:
-            self.name: str = kwargs.get("name", "Default Name").lower()
-        try:
-            self.slot: Slot = Slot.from_list(kwargs.get("slot", []))
-        except KeyError:
-            self.slot = Slot.head
-        self.att: int = kwargs.get("att", 0)
-        self.int: int = kwargs.get("int", 0)
-        self.cha: int = kwargs.get("cha", 0)
-        self._rarity: str = kwargs.get("rarity", 0)
-        try:
-            self.rarity: Rarities = Rarities.get_from_name(self._rarity)
-        except KeyError:
-            self.rarity = Rarities.normal
-        self.dex: int = kwargs.get("dex", 0)
-        self.luck: int = kwargs.get("luck", 0)
-        self.owned: int = kwargs.get("owned", 0)
-        self.set: bool = kwargs.get("set", False)
-        self.parts: int = kwargs.get("parts", 0)
-        self.total_stats: int = self.att + self.int + self.cha + self.dex + self.luck
-        if self.slot is Slot.two_handed:
-            self.total_stats *= 2
-        self.max_main_stat = max(self.att, self.int, self.cha, 1)
-        self.lvl: int = (
-            (kwargs.get("lvl") or self.get_equip_level()) if self.rarity is Rarities.event else self.get_equip_level()
-        )
-        self.degrade = kwargs.get("degrade", 5)
-
-    def __str__(self):
-        return self.rarity.as_str(self.name)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Item):
-            return False
-        return (
-            other.name == self.name
-            and other.rarity is self.rarity
-            and other.dex == self.dex
-            and other.luck == self.luck
-            and other.att == self.att
-            and other.int == self.int
-            and other.cha == self.cha
-            and other.slot is self.slot
-        )
-
-    @property
-    def ansi(self) -> str:
-        return self.rarity.as_ansi(self.name)
-
-    def as_ansi(self, maxwidth: Optional[int] = None) -> str:
-        return self.rarity.as_ansi(self.name, maxwidth)
-
-    def stat_str(self) -> str:
-        mult = 2 if self.slot is Slot.two_handed else 1
-        ret = self.slot.get_name() or ""
-        stats = [
-            "ATT",
-            "CHA",
-            "INT",
-            "DEX",
-            "LUCK",
-        ]
-
-        ret += " " + " | ".join(f"{stat_name}: {getattr(self, stat_name.lower(), 0) * mult}" for stat_name in stats)
-        return ret
-
-    def row(self, player: Optional[Character], show_delta: bool = False) -> Tuple[Any, ...]:
-        """
-        Return a tuple of relevant data for use in tables for this item.
-
-        Parameters
-        ----------
-            player: Character
-                The player's Character sheet to know their level and show possible deltas.
-        """
-        can_equip = self.lvl <= player.lvl if player is not None else True
-        subtable = BeautifulTable(default_alignment=ALIGN_CENTER, maxwidth=250)
-        subtable.set_style(BeautifulTable.STYLE_RST)
-        # subtable.columns.header = [self.ansi]
-        degrade_str = ""
-        if self.rarity in [Rarities.legendary, Rarities.event, Rarities.ascended] and self.degrade >= 0:
-            degrade_str = f"[{self.degrade}]"
-        set_str = ""
-        if self.set:
-            set_str = f"\n{self.set}"
-        lvl_str = f"{ANSITextColours.red.as_str(str(self.lvl))}" if not can_equip else f"{self.lvl}"
-        lvl_str = _("Lvl: {lvl_str}").format(lvl_str=lvl_str)
-        if show_delta and player is not None:
-            current_equipped = getattr(player, self.slot.char_slot, None)
-            att = player.get_equipped_delta(current_equipped, self, "att")
-            cha = player.get_equipped_delta(current_equipped, self, "cha")
-            intel = player.get_equipped_delta(current_equipped, self, "int")
-            dex = player.get_equipped_delta(current_equipped, self, "dex")
-            luck = player.get_equipped_delta(current_equipped, self, "luck")
-        else:
-            att = self.att * (1 if self.slot is not Slot.two_handed else 2)
-            cha = self.cha * (1 if self.slot is not Slot.two_handed else 2)
-            intel = self.int * (1 if self.slot is not Slot.two_handed else 2)
-            dex = self.dex * (1 if self.slot is not Slot.two_handed else 2)
-            luck = self.luck * (1 if self.slot is not Slot.two_handed else 2)
-        stats = [
-            att,
-            cha,
-            intel,
-            dex,
-            luck,
-        ]
-        subtable.rows.append(stats)
-        subtable.columns.width = COLUMN_WIDTHS
-        subtable.border.top = ""
-        item_name = self.as_ansi(45)
-        return f"{self.owned}x {lvl_str} {self.slot.get_name()} {degrade_str}\n{item_name}{set_str}", subtable
-
-    def table(self, player: Optional[Character]) -> str:
-        table = BeautifulTable(default_alignment=ALIGN_CENTER, maxwidth=250)
-        table.set_style(BeautifulTable.STYLE_RST)
-        table.border.top = ""
-        table.border.bottom = ""
-        headers = [
-            "ATT",
-            "CHA",
-            "INT",
-            "DEX",
-            "LUCK",
-        ]
-        subtable = BeautifulTable(default_alignment=ALIGN_CENTER, maxwidth=250)
-        subtable.set_style(BeautifulTable.STYLE_RST)
-        subtable.columns.width = COLUMN_WIDTHS
-        subtable.rows.append(headers)
-        subtable.border.top = ""
-        table.rows.append([subtable])
-        item_name, item_row = self.row(player)
-        table.rows.append([item_name])
-        table.rows.append([item_row])
-        return table
-
-    @property
-    def formatted_name(self):
-        return str(self)
-
-    def get_equip_level(self):
-        lvl = 1
-        if self.rarity not in [Rarities.forged]:
-            # epic and legendary stats too similar so make level req's
-            # the same
-            rarity_multiplier = max(min(self.rarity.value, 5), 1)
-            mult = 1 + (rarity_multiplier / 10)
-            positive_stats = (
-                sum([i for i in [self.att, self.int, self.cha, self.dex, self.luck] if i > 0])
-                * mult
-                * (1.7 if self.slot is Slot.two_handed else 1)
-            )
-            negative_stats = (
-                sum([i for i in [self.att, self.int, self.cha, self.dex, self.luck] if i < 0])
-                / 2
-                * (1.7 if self.slot is Slot.two_handed else 1)
-            )
-            lvl = positive_stats + negative_stats
-        return max(int(lvl), 1)
-
-    @staticmethod
-    def remove_markdowns(item):
-        if item.startswith(".") or "_" in item:
-            item = item.replace("_", " ").replace(".", "")
-        if item.startswith("["):
-            item = item.replace("[", "").replace("]", "")
-        if item.startswith("{Legendary:'"):
-            item = item.replace("{Legendary:'", "").replace("'}", "")
-        if item.startswith("{legendary:'"):
-            item = item.replace("{legendary:'", "").replace("'}", "")
-        if item.startswith("{ascended:'"):
-            item = item.replace("{ascended:'", "").replace("'}", "")
-        if item.startswith("{Ascended:'"):
-            item = item.replace("{Ascended:'", "").replace("'}", "")
-        if item.startswith("{Gear_Set:'"):
-            item = item.replace("{Gear_Set:'", "").replace("'}", "")
-        if item.startswith("{gear_set:'"):
-            item = item.replace("{gear_set:'", "").replace("'}", "")
-        if item.startswith("{Gear Set:'"):
-            item = item.replace("{Gear Set:'", "").replace("'}", "")
-        if item.startswith("{Set:'"):
-            item = item.replace("{Set:''", "").replace("''}", "")
-        if item.startswith("{set:'"):
-            item = item.replace("{set:''", "").replace("''}", "")
-        if item.startswith("{.:'"):
-            item = item.replace("{.:'", "").replace("':.}", "")
-        if item.startswith("{Event:'"):
-            item = item.replace("{Event:'", "").replace("'}", "")
-        return item
-
-    @classmethod
-    def from_json(cls, ctx: commands.Context, data: dict):
-        name = "".join(data.keys())
-        data = data[name]
-        if name.startswith("."):
-            name = name.replace("_", " ").replace(".", "")
-            rarity = "rare"
-        elif name.startswith("["):
-            name = name.replace("[", "").replace("]", "")
-            rarity = "epic"
-        elif name.startswith("{Legendary:'"):
-            name = name.replace("{Legendary:'", "").replace("'}", "")
-            rarity = "legendary"
-        elif name.startswith("{legendary:'"):
-            name = name.replace("{legendary:'", "").replace("'}", "")
-            rarity = "legendary"
-        elif name.startswith("{Ascended:'"):
-            name = name.replace("{Ascended:'", "").replace("'}", "")
-            rarity = "ascended"
-        elif name.startswith("{ascended:'"):
-            name = name.replace("{ascended:'", "").replace("'}", "")
-            rarity = "ascended"
-        elif name.startswith("{Gear_Set:'"):
-            name = name.replace("{Gear_Set:'", "").replace("'}", "")
-            rarity = "set"
-        elif name.startswith("{Gear Set:'"):
-            name = name.replace("{Gear Set:'", "").replace("'}", "")
-            rarity = "set"
-        elif name.startswith("{gear_set:'"):
-            name = name.replace("{gear_set:'", "").replace("'}", "")
-            rarity = "set"
-        elif name.startswith("{Set:'"):
-            name = name.replace("{Set:''", "").replace("''}", "")
-            rarity = "set"
-        elif name.startswith("{set:'"):
-            name = name.replace("{set:''", "").replace("''}", "")
-            rarity = "set"
-        elif name.startswith("{.:'"):
-            name = name.replace("{.:'", "").replace("':.}", "")
-            rarity = "forged"
-        elif name.startswith("{Event:'"):
-            name = name.replace("{Event:'", "").replace("''}", "")
-            rarity = "event"
-        rarity = data.get("rarity", "normal")
-        att = data["att"] if "att" in data else 0
-        dex = data["dex"] if "dex" in data else 0
-        inter = data["int"] if "int" in data else 0
-        cha = data["cha"] if "cha" in data else 0
-        luck = data["luck"] if "luck" in data else 0
-        owned = data["owned"] if "owned" in data else 1
-        lvl = data["lvl"] if "lvl" in data else 1
-        _set = data["set"] if "set" in data else False
-        slots = data["slot"]
-        degrade = data["degrade"] if "degrade" in data else 3
-        parts = data["parts"] if "parts" in data else 0
-        # This is used to preserve integrity of Set items
-        # db = get_item_db(rarity)
-        if rarity == "set" and ctx is not None:
-            item = ctx.bot.get_cog("Adventure").TR_GEAR_SET.get(name, {})
-            if item:
-                parts = item.get("parts", parts)
-                _set = item.get("set", _set)
-                att = item.get("att", att)
-                inter = item.get("int", inter)
-                cha = item.get("cha", cha)
-                dex = item.get("dex", dex)
-                luck = item.get("luck", luck)
-                slots = item.get("slot", slots)
-        if rarity not in ["legendary", "event", "ascended"]:
-            degrade = 3
-        if rarity not in ["event"]:
-            lvl = 1
-
-        item_data = {
-            "name": name,
-            "slot": slots,
-            "att": att,
-            "int": inter,
-            "cha": cha,
-            "rarity": rarity,
-            "dex": dex,
-            "luck": luck,
-            "owned": owned,
-            "set": _set,
-            "lvl": lvl,
-            "parts": parts,
-            "degrade": degrade,
-        }
-        return cls(**item_data, ctx=ctx)
-
-    def to_json(self) -> dict:
-        # db = get_item_db(self.rarity)
-        if self.rarity is Rarities.set:
-            updated_set = self._ctx.bot.get_cog("Adventure").TR_GEAR_SET.get(self.name)
-            if updated_set:
-                self.att = updated_set.get("att", self.att)
-                self.int = updated_set.get("int", self.int)
-                self.cha = updated_set.get("cha", self.cha)
-                self.dex = updated_set.get("dex", self.dex)
-                self.luck = updated_set.get("luck", self.luck)
-                self.set = updated_set.get("set", self.set)
-                self.parts = updated_set.get("parts", self.parts)
-        data = {
-            self.name: {
-                "slot": self.slot.to_json(),
-                "att": self.att,
-                "int": self.int,
-                "cha": self.cha,
-                "rarity": self.rarity.name,
-                "dex": self.dex,
-                "luck": self.luck,
-                "owned": self.owned,
-            }
-        }
-        if self.rarity in [Rarities.legendary, Rarities.ascended]:
-            data[self.name]["degrade"] = self.degrade
-        elif self.rarity is Rarities.set:
-            data[self.name]["parts"] = self.parts
-            data[self.name]["set"] = self.set
-            data[self.name].pop("att", None)
-            data[self.name].pop("int", None)
-            data[self.name].pop("cha", None)
-            data[self.name].pop("dex", None)
-            data[self.name].pop("luck", None)
-        elif self.rarity is Rarities.event:
-            data[self.name]["degrade"] = self.degrade
-            data[self.name]["lvl"] = self.lvl
-        return data
+from adventure.core.character import *  # noqa: F401,F403
 
 
 class Character:
@@ -438,6 +82,13 @@ class Character:
         self.daily_bonus = kwargs.pop(
             "daily_bonus_mapping", {"1": 0, "2": 0, "3": 0.5, "4": 0, "5": 0.5, "6": 1.0, "7": 1.0}
         )
+        # Units persistence (unit-health / army state)
+    self.units: dict = kwargs.pop("units", {})
+    # Economy fields
+    self.supplies: int = kwargs.pop("supplies", 0)
+    self.command_points: int = kwargs.pop("command_points", 0)
+    # optional repair kit counter (may also be represented as backpack items)
+    self.repair_kits: int = kwargs.pop("repair_kits", 0)
 
     @property
     def hc(self) -> HeroClasses:
@@ -1313,6 +964,20 @@ class Character:
             else:
                 self.backpack[item.name] = item
 
+    async def add_supplies(self, amount: int):
+        try:
+            self.supplies += int(amount)
+        except Exception:
+            self.supplies += 0
+        return self.supplies
+
+    async def add_cp(self, amount: int):
+        try:
+            self.command_points += int(amount)
+        except Exception:
+            self.command_points += 0
+        return self.command_points
+
     async def equip_loadout(self, loadout_name):
         loadout = self.loadouts[loadout_name]
         for slot, item in loadout.items():
@@ -1484,6 +1149,9 @@ class Character:
             "user": user,
             "rebirths": data.pop("rebirths", 0),
             "set_items": data.get("set_items", 0),
+            "units": data.get("units", {}),
+            "supplies": data.get("supplies", 0),
+            "command_points": data.get("command_points", 0),
         }
         for k, v in equipment.items():
             hero_data[k] = v
@@ -1549,6 +1217,7 @@ class Character:
                 "charm": self.charm.to_json() if self.charm else {},
             },
             "backpack": backpack,
+            "units": self.units,
             "loadouts": self.loadouts,  # convert to dict of items
             "heroclass": self.heroclass,
             "skill": self.skill,
@@ -1556,6 +1225,8 @@ class Character:
             "set_items": self.set_items,
             "last_skill_reset": self.last_skill_reset,
             "last_known_currency": self.last_known_currency,
+            "supplies": self.supplies,
+            "command_points": self.command_points,
         }
 
     async def rebirth(self, dev_val: int = None) -> dict:

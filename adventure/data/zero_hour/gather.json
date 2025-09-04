@@ -1,0 +1,6 @@
+{
+  "drops": [
+    {"name": "supplies_crate", "chance": 70, "amount": [1, 3]},
+    {"name": "materials_scrap", "chance": 30, "amount": [1, 2]}
+  ]
+}

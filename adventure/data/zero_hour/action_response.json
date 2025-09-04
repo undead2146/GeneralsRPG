@@ -1,0 +1,5 @@
+{
+  "attack": ["They charge forward with rifles blazing!", "A barrage of fire greets you!"],
+  "talk": ["The commander attempts to negotiate.", "Propaganda drones hum nearby."],
+  "pray": ["You take a breath and steady your troops.", "A quiet moment as engineers repair the hull."]
+}

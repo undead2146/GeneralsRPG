@@ -1,0 +1,26 @@
+{
+  "Spy Drone": {
+    "bonus": 1.10,
+    "bonuses": { "crit": 10, "always": false }
+  },
+  "Hijacker": {
+    "bonus": 1.20,
+    "bonuses": { "crit": 18, "always": false }
+  },
+  "Minigunner": {
+    "bonus": 1.25,
+    "bonuses": { "crit": 22, "always": false }
+  },
+  "Pathfinder": {
+    "bonus": 1.30,
+    "bonuses": { "crit": 28, "always": false }
+  },
+  "Saboteur": {
+    "bonus": 1.35,
+    "bonuses": { "crit": 30, "always": false }
+  },
+  "Jarmen Kell": {
+    "bonus": 1.50,
+    "bonuses": { "crit": 50, "always": true }
+  }
+}

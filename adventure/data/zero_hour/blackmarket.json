@@ -1,0 +1,7 @@
+{
+  "drops": [
+    {"name": "contraband_pack", "chance": 40, "amount": [1, 1]},
+    {"name": "stolen_blueprint", "chance": 10, "amount": [1, 1]}
+  ],
+  "risk": {"lose_chance": 15}
+}

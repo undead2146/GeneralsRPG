@@ -1,0 +1,40 @@
+{
+  "buildings": [
+    {
+      "id": "command_center",
+      "name": "Command Center",
+      "power_provided": 0,
+      "power_usage": 0,
+      "build_time_minutes": 60,
+      "description": "Central hub for your base. Unlocks general powers and rank features.",
+      "effects": { "army_point_cap": 10 }
+    },
+    {
+      "id": "power_plant",
+      "name": "Power Plant",
+      "power_provided": 200,
+      "power_usage": 0,
+      "build_time_minutes": 30,
+      "description": "Provides grid capacity used by other buildings.",
+      "effects": { }
+    },
+    {
+      "id": "barracks",
+      "name": "Barracks",
+      "power_provided": 0,
+      "power_usage": 20,
+      "build_time_minutes": 45,
+      "description": "Train infantry units and unlock upgrades.",
+      "effects": { "unit_training": "infantry" }
+    },
+    {
+      "id": "war_factory",
+      "name": "War Factory",
+      "power_provided": 0,
+      "power_usage": 40,
+      "build_time_minutes": 90,
+      "description": "Produce vehicle units and industrial upgrades.",
+      "effects": { "unit_training": "vehicle" }
+    }
+  ]
+}

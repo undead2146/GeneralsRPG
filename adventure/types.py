@@ -1,19 +1,12 @@
-from typing import List, TypedDict
+"""Shim module for backwards compatibility during refactor.
 
+Local code should import types from `adventure.core.types` going forward.
+This shim keeps existing imports working while we migrate files.
+"""
 
-class MiniBoss(TypedDict):
-    requirements: List[str]
-    defeat: str
-    special: str
+from adventure.core.types import *  # noqa: F401,F403
 
-
-class Monster(TypedDict):
-    hp: int
-    pdef: float
-    mdef: float
-    cdef: float
-    dipl: int
-    image: str
-    boss: bool
-    miniboss: MiniBoss
-    color: str
+__all__ = [
+    'MiniBoss',
+    'Monster',
+]

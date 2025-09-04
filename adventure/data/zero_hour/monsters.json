@@ -1,0 +1,38 @@
+{
+  "GLA Technical Rush": {
+    "hp": 260,
+    "color": "green"
+  },
+  "GLA Scud Party": {
+    "hp": 420,
+    "color": "green"
+  },
+  "USA Humvee Convoy": {
+    "hp": 350,
+    "color": "blue"
+  },
+  "USA Airstrike Wing": {
+    "hp": 480,
+    "color": "blue"
+  },
+  "China Dragon Column": {
+    "hp": 500,
+    "color": "red"
+  },
+  "China Overlord Push": {
+    "hp": 850,
+    "color": "red"
+  },
+  "China Nuke Artillery": {
+    "hp": 780,
+    "color": "red"
+  },
+  "USA Particle Defense Grid": {
+    "hp": 920,
+    "color": "blue"
+  },
+  "Boss General Leang": {
+    "hp": 1600,
+    "color": "purple"
+  }
+}

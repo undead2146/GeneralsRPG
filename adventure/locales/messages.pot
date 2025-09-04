@@ -70,6 +70,27 @@ msgid ""
 "{backpack}\n"
 msgstr ""
 
+# GeneralsRPG messages
+#: loot.py: NEW
+msgid "You gathered some supplies and materials."
+msgstr ""
+
+#: loot.py: NEW
+msgid "You salvaged parts and added them to your backpack."
+msgstr ""
+
+#: loot.py: NEW
+msgid "Your black market run was intercepted; you lost your goods."
+msgstr ""
+
+#: loot.py: NEW
+msgid "The blackmarket deal fell through; nothing to show."
+msgstr ""
+
+#: loot.py: NEW
+msgid "Black market acquisition complete; goods added to your backpack."
+msgstr ""
+
 #: adventure.py:273 adventure.py:339
 msgid "{author} equipped {item} ({slot} slot)."
 msgstr ""

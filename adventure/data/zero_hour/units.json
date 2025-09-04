@@ -1,0 +1,8 @@
+{
+  "units": [
+    { "id": "ranger", "faction": "usa", "type": "infantry", "base_hp": 100, "base_at": 10, "description": "Light infantry with AT capability." },
+    { "id": "humvee", "faction": "usa", "type": "vehicle", "base_hp": 300, "base_at": 40, "description": "Fast light vehicle." },
+    { "id": "red_guard", "faction": "china", "type": "infantry", "base_hp": 110, "base_at": 12, "description": "Reliable infantry unit." },
+    { "id": "technical", "faction": "gla", "type": "vehicle", "base_hp": 200, "base_at": 25, "description": "Scavenger vehicle." }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "Overlord Army": [
+    { "parts": 3, "att": 6, "statmult": 1.10 },
+    { "parts": 9, "att": 24, "statmult": 1.30, "xpmult": 1.15 }
+  ],
+  "Air Force Doctrine": [
+    { "parts": 3, "int": 6, "statmult": 1.10 },
+    { "parts": 9, "int": 30, "statmult": 1.30, "cpmult": 1.15 }
+  ],
+  "Stealth Operations": [
+    { "parts": 3, "cha": 6, "statmult": 1.10 },
+    { "parts": 9, "cha": 24, "statmult": 1.25, "xpmult": 1.10 }
+  ],
+  "Shock and Awe": [
+    { "parts": 3, "att": 5, "int": 5, "statmult": 1.10 },
+    { "parts": 9, "att": 20, "int": 20, "statmult": 1.30, "cpmult": 1.10 }
+  ]
+}

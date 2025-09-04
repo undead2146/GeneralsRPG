@@ -1,4 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
+*./
+/*.
+.*
+.*/
+*.log
+__pycache__
 .gitignore
 .idea/.gitignore
 .idea/codeStyles/

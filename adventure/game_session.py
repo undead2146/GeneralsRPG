@@ -1,93 +1,12 @@
-from __future__ import annotations
+"""Compatibility shim: UI GameSession moved to :mod:`adventure.ui.game_session`.
 
-import logging
-import time
-from datetime import datetime
-from enum import Enum
-from typing import Dict, List, Mapping, MutableMapping, Optional, Set, Tuple
+Keep this module as a thin re-export so imports of :mod:`adventure.game_session`
+remain functional during the refactor.
+"""
 
-import discord
-from redbot.core.commands import Context
-from redbot.core.i18n import Translator, set_contextual_locales_from_guild
-from redbot.core.utils.chat_formatting import box, humanize_list, humanize_number
+from adventure.ui.game_session import *  # noqa: F401,F403
 
-from .abc import AdventureMixin
-from .charsheet import Character, has_funds
-from .constants import HeroClasses
-from .helpers import escape, smart_embed
-from .rng import Random
-
-# This is split into its own file for future buttons usage
-# We will have game sessions inherit discord.ui.View and then we can send a message
-# with the buttons required. For now this will sit in its own file.
-
-_ = Translator("Adventure", __file__)
-log = logging.getLogger("red.cogs.adventure")
-
-
-class Action(Enum):
-    fight = 0
-    talk = 1
-    pray = 2
-    magic = 3
-    run = 4
-
-    @property
-    def emoji(self):
-        return {
-            Action.fight: "\N{DAGGER KNIFE}\N{VARIATION SELECTOR-16}",
-            Action.talk: "\N{LEFT SPEECH BUBBLE}\N{VARIATION SELECTOR-16}",
-            Action.pray: "\N{PERSON WITH FOLDED HANDS}",
-            Action.magic: "\N{SPARKLES}",
-            Action.run: "\N{RUNNER}\N{ZERO WIDTH JOINER}\N{MALE SIGN}\N{VARIATION SELECTOR-16}",
-        }[self]
-
-
-class ActionButton(discord.ui.Button):
-    def __init__(self, action: Action):
-        self.action = action
-        super().__init__(label=self.action.name.title(), emoji=self.action.emoji)
-
-    async def send_response(self, interaction: discord.Interaction):
-        user = interaction.user
-        try:
-            c = await Character.from_json(self.view.ctx, self.view.cog.config, user, self.view.cog._daily_bonus)
-        except Exception as exc:
-            log.exception("Error with the new character sheet", exc_info=exc)
-            pass
-        choices = self.view.cog.ACTION_RESPONSE.get(self.action.name, {})
-        heroclass = c.hc.name
-        pet = ""
-        if c.hc is HeroClasses.ranger:
-            pet = c.heroclass.get("pet", {}).get("name", _("pet you would have if you had a pet"))
-
-        choice = self.view.rng.choice(choices[heroclass] + choices["hero"])
-        choice = choice.replace("$pet", pet)
-        choice = choice.replace("$monster", self.view.challenge_name())
-        weapon = c.get_weapons()
-        choice = choice.replace("$weapon", weapon)
-        god = await self.view.cog.config.god_name()
-        if await self.view.cog.config.guild(interaction.guild).god_name():
-            god = await self.view.cog.config.guild(interaction.guild).god_name()
-        choice = choice.replace("$god", god)
-        await smart_embed(message=box(choice, lang="ansi"), ephemeral=True, interaction=interaction)
-
-    async def callback(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        user = interaction.user
-        for action in Action:
-            if action is self.action:
-                continue
-            if user in getattr(self.view, action.name, []):
-                getattr(self.view, action.name).remove(user)
-        if user not in getattr(self.view, self.action.name):
-            getattr(self.view, self.action.name).append(user)
-            await self.send_response(interaction)
-            await self.view.update()
-        else:
-            await smart_embed(message="You are already fighting this monster.", ephemeral=True, interaction=interaction)
-
-
+__all__ = [name for name in dir() if not name.startswith("_")]
 class SpecialActionButton(discord.ui.Button):
     def __init__(
         self,
