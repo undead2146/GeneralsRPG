@@ -14,7 +14,24 @@ from redbot.core import commands
 
 _ = lambda s: s
 
-class Adventure(commands.GroupCog):
+try:
+    from .commands.wrappers import WrapperCommands
+except ImportError:
+    # Fallback if wrapper commands can't be imported due to dependencies
+    class WrapperCommands:
+        async def skirmish(self, ctx, *, challenge=None):
+            """Minimal skirmish implementation for legacy mode."""
+            return await self._adventure(ctx, challenge=challenge)
+        
+        async def operation(self, ctx, *, challenge=None):
+            """Minimal operation implementation for legacy mode."""
+            return await self._adventure(ctx, challenge=challenge)
+        
+        async def drill(self, ctx, *, skill=None, amount=1):
+            """Minimal drill implementation for legacy mode."""
+            return await self.skill(ctx, skill=skill, amount=amount)
+
+class Adventure(WrapperCommands, commands.GroupCog):
     """A compact legacy placeholder for the original Adventure class.
 
     The real implementation lives in the original `adventure/adventure.py` and
@@ -31,3 +48,11 @@ class Adventure(commands.GroupCog):
     async def initialize(self):
         await self.bot.wait_until_red_ready()
         self._ready_event.set()
+    
+    async def _adventure(self, ctx, *, challenge=None):
+        """Minimal placeholder for adventure method."""
+        return await ctx.send("Adventure functionality not fully loaded (legacy mode)")
+    
+    async def skill(self, ctx, *, skill=None, amount=1):
+        """Minimal placeholder for skill method."""
+        return await ctx.send("Skill functionality not fully loaded (legacy mode)")

@@ -121,9 +121,12 @@ def test_repair_unit_using_kits_and_parts():
     assert e.status == "active"
 
     # fallback direct decrement
-    c3 = DummyChar(backpack={"Parts": 1})
-    # remove_backpack_item will succeed, test direct decrement by forcing no method
-    del c3.remove_backpack_item
+    # Create a character without remove_backpack_item method to test fallback
+    class DummyCharNoMethod:
+        def __init__(self, backpack=None):
+            self.backpack = backpack or {}
+    
+    c3 = DummyCharNoMethod(backpack={"Parts": 1})
     f = UnitState(id="u9", type="tank", hp=0, max_hp=10, status="downed")
     ok = repair_unit(f, char=c3, prefer_kit=False)
     assert ok is True

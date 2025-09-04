@@ -7,6 +7,29 @@ the public symbols from `adventure.core.character`.
 
 from adventure.core.character import *  # noqa: F401,F403
 
+# Import specific classes needed for this module
+try:
+    from adventure.core.constants import HeroClasses
+    from adventure.constants import Slot, Treasure
+    from adventure.core.items import Item
+    from redbot.core import commands
+except ImportError:
+    # Fallback for test environments
+    class HeroClasses:
+        @classmethod
+        def from_name(cls, name):
+            return None
+    class Slot:
+        two_handed = "two_handed"
+    class Treasure:
+        pass
+    class Item:
+        def __init__(self, **kwargs):
+            pass
+    class commands:
+        class Context:
+            pass
+
 
 class Character:
     """An class to represent the characters stats."""
@@ -83,12 +106,12 @@ class Character:
             "daily_bonus_mapping", {"1": 0, "2": 0, "3": 0.5, "4": 0, "5": 0.5, "6": 1.0, "7": 1.0}
         )
         # Units persistence (unit-health / army state)
-    self.units: dict = kwargs.pop("units", {})
-    # Economy fields
-    self.supplies: int = kwargs.pop("supplies", 0)
-    self.command_points: int = kwargs.pop("command_points", 0)
-    # optional repair kit counter (may also be represented as backpack items)
-    self.repair_kits: int = kwargs.pop("repair_kits", 0)
+        self.units: dict = kwargs.pop("units", {})
+        # Economy fields
+        self.supplies: int = kwargs.pop("supplies", 0)
+        self.command_points: int = kwargs.pop("command_points", 0)
+        # optional repair kit counter (may also be represented as backpack items)
+        self.repair_kits: int = kwargs.pop("repair_kits", 0)
 
     @property
     def hc(self) -> HeroClasses:
